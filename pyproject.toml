@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "btcpoly"
+version = "0.1.0"
+description = "Research-first BTC attention system for Polymarket Up/Down markets. Live trading disabled by default."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "BTC Polymarket research" }]
+dependencies = [
+    "sqlalchemy>=2.0.30",
+    "pyyaml>=6.0.1",
+    "python-dotenv>=1.0.1",
+    "pydantic>=2.7.0",
+    "click>=8.1.7",
+    "rich>=13.7.1",
+    "feedparser>=6.0.11",
+    "tzdata>=2024.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.2.0",
+]
+
+[project.scripts]
+btcpoly = "btcpoly.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-q"

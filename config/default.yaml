@@ -1,0 +1,279 @@
+# Research-first defaults. Live execution is off.
+
+hypothesis: >
+  Does a sudden change in real-time Bitcoin attention/sentiment contain
+  predictive information about short-term BTC movement that is NOT already
+  priced into Polymarket?
+
+logging:
+  level: INFO
+  json: false
+
+database:
+  url: sqlite:///data/btcpoly.db
+  echo: false
+
+execution:
+  enabled: false
+  require_confirm_env: true
+
+paper:
+  starting_cash: 100.0
+  fee_bps: 0
+  slippage_bps: 50
+  model_name: momentum_attn_v1
+  # btcpoly run: fresh $100 book, skip the window you started in, news-sentiment gate
+  reset_on_run: true
+  wait_next_window_on_run: true
+  require_fresh_btc_sentiment: true
+  min_mention_count_900: 1
+  min_sentiment_net_900: 0.08
+
+kalshi:
+  # Official USA-accessible exchange (replaces Polymarket).
+  api_base: https://api.elections.kalshi.com/trade-api/v2
+  series_ticker: KXBTC15M
+  market_duration_minutes: 15
+  order_min_size: 1.0
+  # Optional hint: full Kalshi URL or ticker (short form ok). Auto-rolls via series.
+  # Live at session start (~3:45pm PT Aug 28): kxbtc15m-26aug281900
+  market_ticker: https://kalshi.com/markets/kxbtc15m/bitcoin-price-up-down/kxbtc15m-26aug281900
+  exchange_name: kalshi
+
+btc_market:
+  windows_seconds: [10, 30, 60, 300, 900, 3600]
+  # Spot is a feature. Resolution labels come from Kalshi YES/NO settlement.
+  spot_source: binance
+  # api.binance.com is often geo-blocked; vision mirror is public market data.
+  binance_rest: https://data-api.binance.vision
+  resolution_source: kalshi
+
+attention:
+  windows_seconds: [60, 300, 900, 3600]
+  queries:
+    - BTC
+    - Bitcoin
+    - $BTC
+    - 比特币
+    - 比特幣
+
+ingest:
+  limit: 15
+  timeout_seconds: 60
+  # 0 = poll again as soon as the last fetch finishes.
+  interval_seconds: 0
+  # Drop mentions older than this (minutes). Live trading needs fresh attention, not day-old news.
+  max_age_minutes: 45
+  # Broad RSS set. Groq scores per-post credibility + BTC lean; low-cred
+  # sources still ingest but get down-weighted in features/edge.
+  rss_feeds:
+    # --- Crypto desks ---
+    - https://bitcoinmagazine.com/.rss/full/
+    - https://news.bitcoin.com/feed/
+    - https://www.coindesk.com/arc/outboundfeeds/rss/
+    - https://cointelegraph.com/rss/tag/bitcoin
+    - https://cointelegraph.com/rss
+    - https://decrypt.co/feed
+    - https://www.theblock.co/rss.xml
+    - https://blockworks.co/feed/
+    - https://www.dlnews.com/arc/outboundfeeds/rss/
+    - https://cryptoslate.com/feed/
+    - https://cryptopotato.com/feed/
+    - https://www.newsbtc.com/feed/
+    - https://bitcoinist.com/feed/
+    - https://www.cryptopolitan.com/feed/
+    - https://crypto.news/feed/
+    - https://u.today/rss
+    - https://ambcrypto.com/feed/
+    - https://beincrypto.com/feed/
+    - https://www.ft.com/bitcoin?format=rss
+    - https://seekingalpha.com/tag/bitcoin.xml
+    # --- Major outlets (direct business / top feeds) ---
+    - https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml
+    - https://rss.nytimes.com/services/xml/rss/nyt/Business.xml
+    - https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml
+    - https://rss.nytimes.com/services/xml/rss/nyt/Economy.xml
+    - https://feeds.content.dowjones.io/public/rss/RSSMarketsMain
+    - https://feeds.content.dowjones.io/public/rss/WSJcomUSBusiness
+    - https://feeds.content.dowjones.io/public/rss/RSSWorldNews
+    - https://feeds.washingtonpost.com/rss/business
+    - https://feeds.washingtonpost.com/rss/national
+    - https://feeds.washingtonpost.com/rss/politics
+    - https://feeds.washingtonpost.com/rss/world
+    - http://rss.cnn.com/rss/cnn_topstories.rss
+    - http://rss.cnn.com/rss/money_latest.rss
+    - http://rss.cnn.com/rss/cnn_tech.rss
+    - http://rss.cnn.com/rss/cnn_allpolitics.rss
+    - https://moxie.foxnews.com/google-publisher/latest.xml
+    - https://moxie.foxnews.com/google-publisher/politics.xml
+    - https://moxie.foxnews.com/google-publisher/tech.xml
+    - https://moxie.foxnews.com/google-publisher/world.xml
+    - https://feeds.nbcnews.com/nbcnews/public/news
+    - https://feeds.nbcnews.com/nbcnews/public/business
+    - https://feeds.nbcnews.com/nbcnews/public/politics
+    - https://www.cbsnews.com/latest/rss/main
+    - https://www.cbsnews.com/latest/rss/moneywatch
+    - https://www.cbsnews.com/latest/rss/politics
+    - https://www.cbsnews.com/latest/rss/technology
+    - https://feeds.bbci.co.uk/news/rss.xml
+    - https://feeds.bbci.co.uk/news/business/rss.xml
+    - https://feeds.bbci.co.uk/news/technology/rss.xml
+    - https://www.cnbc.com/id/100003114/device/rss/rss.html
+    - https://www.cnbc.com/id/10000664/device/rss/rss.html
+    - https://www.cnbc.com/id/19854910/device/rss/rss.html
+    - https://feeds.npr.org/1001/rss.xml
+    - https://feeds.npr.org/1006/rss.xml
+    - https://feeds.npr.org/1019/rss.xml
+    - https://www.theguardian.com/us/rss
+    - https://www.theguardian.com/business/rss
+    - https://www.theguardian.com/technology/rss
+    - https://www.theguardian.com/technology/bitcoin/rss
+    - https://rss.politico.com/politics-news.xml
+    - https://www.aljazeera.com/xml/rss/all.xml
+    - https://feeds.skynews.com/feeds/rss/business.xml
+    # --- More popular mainstream / finance / tech ---
+    - https://feeds.abcnews.com/abcnews/topstories
+    - https://feeds.abcnews.com/abcnews/moneyheadlines
+    - https://moxie.foxbusiness.com/google-publisher/latest.xml
+    - https://moxie.foxbusiness.com/google-publisher/markets.xml
+    - https://moxie.foxbusiness.com/google-publisher/technology.xml
+    - https://www.businessinsider.com/rss
+    - https://markets.businessinsider.com/rss/news
+    - https://www.benzinga.com/feed
+    - https://finance.yahoo.com/news/rssindex
+    - https://feeds.finance.yahoo.com/rss/2.0/headline?s=BTC-USD&region=US&lang=en-US
+    - https://www.investing.com/rss/news.rss
+    - https://www.investing.com/rss/news_25.rss
+    - https://feeds.marketwatch.com/marketwatch/topstories/
+    - https://feeds.marketwatch.com/marketwatch/marketpulse/
+    - https://www.marketwatch.com/rss/realtimeheadlines
+    - https://feeds.bloomberg.com/markets/news.rss
+    - https://www.forbes.com/innovation/feed/
+    - https://www.economist.com/finance-and-economics/rss.xml
+    - https://www.economist.com/business/rss.xml
+    - https://www.ft.com/companies?format=rss
+    - https://www.ft.com/technology?format=rss
+    - https://api.axios.com/feed/
+    - https://www.semafor.com/rss.xml
+    - https://time.com/feed/
+    - https://www.vox.com/rss/index.xml
+    - https://www.newsweek.com/rss
+    - https://www.latimes.com/business/rss2.0.xml
+    - https://www.independent.co.uk/news/business/rss
+    - https://www.scmp.com/rss/91/feed
+    - https://asia.nikkei.com/rss/feed/nar
+    - https://www.france24.com/en/rss
+    - https://www.euronews.com/rss
+    - https://rss.dw.com/rdf/rss-en-all
+    - https://techcrunch.com/feed/
+    - https://techcrunch.com/category/cryptocurrency/feed/
+    - https://www.theverge.com/rss/index.xml
+    - https://www.wired.com/feed/rss
+    - https://arstechnica.com/feed/
+    - https://www.engadget.com/rss.xml
+    # --- More crypto / markets desks ---
+    - https://www.fxstreet.com/rss/news
+    - https://coingape.com/feed/
+    - https://www.cryptonewsz.com/feed/
+    - https://www.thecoinrepublic.com/feed/
+    - https://www.thedefiant.io/feed/
+    - https://www.bankless.com/feed
+    - https://www.ledgerinsights.com/feed/
+    # --- Google News: majors filtered to Bitcoin/BTC (USA Today has no working direct RSS) ---
+    - https://news.google.com/rss/search?q=%22Bitcoin%22+when:1h&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Bitcoin+OR+BTC+when:1h&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Bitcoin+OR+BTC&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Bitcoin+OR+BTC+site:nytimes.com&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Bitcoin+OR+BTC+site:wsj.com&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Bitcoin+OR+BTC+site:washingtonpost.com&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Bitcoin+OR+BTC+site:usatoday.com&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Bitcoin+OR+BTC+site:cnn.com&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Bitcoin+OR+BTC+site:foxnews.com&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Bitcoin+OR+BTC+site:nbcnews.com&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Bitcoin+OR+BTC+site:cbsnews.com&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Bitcoin+OR+BTC+site:reuters.com&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Bitcoin+OR+BTC+site:bloomberg.com&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Bitcoin+OR+BTC+site:apnews.com&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Bitcoin+OR+BTC+site:forbes.com&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Bitcoin+OR+BTC+site:businessinsider.com&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Bitcoin+OR+BTC+site:yahoo.com&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Bitcoin+OR+BTC+site:marketwatch.com&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Bitcoin+OR+BTC+site:barrons.com&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Bitcoin+OR+BTC+site:foxbusiness.com&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Bitcoin+OR+BTC+site:axios.com&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Bitcoin+OR+BTC+site:techcrunch.com&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Bitcoin+OR+BTC+site:economist.com&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Bitcoin+OR+BTC+site:abcnews.go.com&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Bitcoin+OR+cryptocurrency+(site:nytimes.com+OR+site:wsj.com+OR+site:washingtonpost.com+OR+site:cnn.com+OR+site:foxnews.com+OR+site:nbcnews.com+OR+site:cbsnews.com+OR+site:usatoday.com+OR+site:reuters.com+OR+site:bbc.com+OR+site:cnbc.com+OR+site:theguardian.com+OR+site:bloomberg.com+OR+site:forbes.com+OR+site:yahoo.com)&hl=en-US&gl=US&ceid=US:en
+    - https://www.reddit.com/r/CryptoCurrency/new/.rss
+
+  # Homepage snapshots are not live headlines; leave empty.
+  news_urls: []
+
+agent_reach:
+  doctor_timeout_seconds: 45
+  doctor_command: [agent-reach, doctor, --json]
+  channels:
+    # Real-time-ish social + news first (best for short-horizon signals).
+    - twitter
+    - reddit
+    - rss
+    - youtube
+    - v2ex
+    - bilibili
+    # GitHub repo search is rate-limited and weak for 15m BTC — optional.
+    # - github
+    # XiaoHongShu needs login / Browser Bridge — leave off for now.
+    # - xiaohongshu
+
+
+kol_watchlist:
+  # Influential BTC / crypto accounts. Their posts are kept even if not about BTC.
+  twitter:
+    - saylor
+    - Strategy
+    - DocumentingBTC
+    - BitcoinMagazine
+    - whale_alert
+    - Tier10k
+    - CoinDesk
+    - cointelegraph
+    - TheBlock__
+    - lookonchain
+    - glassnode
+    - _Checkmatey_
+    - LynAldenContact
+    - PrestonPysh
+    - APompliano
+    - nic__carter
+    - adam3us
+    - lopp
+    - HsakaTrades
+    - CryptoCred
+    - CryptoCapo_
+    - cz_binance
+    - coinbase
+    - BlackRock
+    - SECGov
+
+risk:
+  max_position_usd: 25.0
+  max_bankroll_pct: 0.25
+  max_daily_loss_usd: 50.0
+  max_simultaneous_positions: 1
+  # Live paper: trade when model vs Polymarket mid differs enough and confidence clears.
+  min_edge: 0.04
+  min_confidence: 0.20
+  max_spread: 0.06
+  cooldown_seconds: 60
+  emergency_stop: false
+
+# Hybrid AI lean on top of lexicon sentiment. Needs GROQ_API_KEY or OPENAI_API_KEY.
+# Auto-disables (no crash) when no key is set. Set BTC_POLY_AI_SENTIMENT=0 to force off.
+ai_sentiment:
+  enabled: true
+  provider: auto   # auto | groq | openai
+  model: ""        # blank = groq openai/gpt-oss-20b / openai gpt-4o-mini
+  max_posts: 15
+  timeout_seconds: 20
+  lookback_seconds: 900
