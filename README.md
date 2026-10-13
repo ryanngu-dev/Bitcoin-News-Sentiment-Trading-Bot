@@ -5,7 +5,7 @@ contains information that is **not already priced into Kalshi** BTC Up/Down
 markets.
 
 This is a research system with a **terminal CLI**. Cursor agents should call `btcpoly`, not invent trades.
-Live Polymarket execution is **disabled by default**. Agents use `--mode paper` until you prove edge and arm live.
+Live Kalshi execution is **disabled by default**. Agents use `--mode paper` until you prove edge and arm live.
 
 ## What this repo is (Phase 2)
 
@@ -31,7 +31,6 @@ Missing tools skip that channel; ingest still succeeds.
 ## Setup
 
 ```powershell
-cd "C:\Users\ryann\Desktop\BTC Polymarket trading bot"
 python -m venv .venv
 .venv\Scripts\activate
 pip install -e ".[dev]"
@@ -74,7 +73,7 @@ Live trading stays off unless **all** of these are true:
 
 Does a sudden change in real-time Bitcoin attention/sentiment contain
 predictive information about short-term BTC movement that is not already in
-Polymarket prices?
+Kalshi prices?
 
 The system is built to **prove or disprove** that. It does not assume it works.
 
