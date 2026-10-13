@@ -1,7 +1,7 @@
-# BTC Polymarket Attention Lab
+# BTC Kalshi Attention Lab
 
 Research-first system for testing whether real-time Bitcoin internet attention
-contains information that is **not already priced into Polymarket** BTC Up/Down
+contains information that is **not already priced into Kalshi** BTC Up/Down
 markets.
 
 This is a research system with a **terminal CLI**. Cursor agents should call `btcpoly`, not invent trades.
