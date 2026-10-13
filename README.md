@@ -14,11 +14,12 @@ Live Polymarket execution is **disabled by default**. Agents use `--mode paper` 
 - Twitter/Reddit/XHS skip unless cookies/login are configured
 - `btcpoly execute --mode paper` logs `NO_TRADE` until a model exists
 - `btcpoly execute --mode live` is refused (same command later, after profitability)
+- Uses Agent-Reach from GitHub to get real-time news from social media sources/news outlets
 
 ## Requirements
 
 - Python 3.11+
-- Optional: [Agent Reach](https://github.com/Panniantong/Agent-Reach) from GitHub (not the unrelated PyPI package), plus `yt-dlp` / `gh` / `bili` / `opencli` as available:
+- [Agent Reach](https://github.com/Panniantong/Agent-Reach) from GitHub (not the unrelated PyPI package), plus `yt-dlp` / `gh` / `bili` / `opencli` as available:
 
 ```bash
 pip install https://github.com/Panniantong/agent-reach/archive/main.zip
